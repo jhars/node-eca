@@ -1,0 +1,19 @@
+
+// app.get("/", (req, res) => res.send("Hello World!"))
+// app.get("/sftp", (req, res) =>
+//
+//     res.send("SFTP Running")
+// )
+
+################################################################
+ //* Upload local file to remote file
+    // await client.uploadFile( "./public/licfp.dat", "/appl/fp_v6.0.03.15D6/lib/licfp.dat");
+    // await client.uploadFile( "./public/licfp.bkp", "/appl/fp_v6.0.03.15D6/lib/licfp.bkp");
+    // await client.uploadFile( "./public/licfp_new.dat", "/appl/fp_v6.0.03.15D6/lib/licfp.dat");
+    // await client.uploadFile( "./public/licfp_new.bkp", "/appl/fp_v6.0.03.15D6/lib/licfp.bkp");
+
+    //* Download remote file to local file
+    // await client.downloadFile("./testSafe/testdirectory/testfile", "./public/downloadedFromDevLinux.txt");
+
+    //* Delete remote file
+    // await client.deleteFile("./remote.txt");

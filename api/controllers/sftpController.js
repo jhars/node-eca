@@ -1,7 +1,18 @@
 'use strict'
-let Client = require('ssh2-sftp-client');
+const Client = require('ssh2-sftp-client');
+const request = require('request')
+const rp = require('request-promise')
+const path = require('path');
+
+
 require('dotenv').config()
 
+const host = process.env.HOST
+const port = 22
+const username = process.env.USERNAME
+const password = process.env.PASSWORD
+
+var client;
 
 class SFTPClient {
     constructor() {
@@ -64,31 +75,29 @@ class SFTPClient {
     }
 };
 
-(async () => {
-    const host = process.env.HOST
-    const port = 22
-    const username = process.env.USERNAME
-    const password = process.env.PASSWORD
-
+const connectSftp = async () => {
     //* Open the connection
-    const client = new SFTPClient();
+    client = new SFTPClient();
     await client.connect({ host, port, username, password });
+}
+
+const listFiles = async (req, res) => {
+    await connectSftp()
 
     //* List working directory files
-    await client.listFiles("/appl/fp_v6.0.03.15D6/lib");
-
-    //* Upload local file to remote file
-    // await client.uploadFile( "./public/licfp.dat", "/appl/fp_v6.0.03.15D6/lib/licfp.dat");
-    // await client.uploadFile( "./public/licfp.bkp", "/appl/fp_v6.0.03.15D6/lib/licfp.bkp");
-    // await client.uploadFile( "./public/licfp_new.dat", "/appl/fp_v6.0.03.15D6/lib/licfp.dat");
-    // await client.uploadFile( "./public/licfp_new.bkp", "/appl/fp_v6.0.03.15D6/lib/licfp.bkp");
-
-    //* Download remote file to local file
-    // await client.downloadFile("./testSafe/testdirectory/testfile", "./public/downloadedFromDevLinux.txt");
-
-    //* Delete remote file
-    // await client.deleteFile("./remote.txt");
+    let list = await client.listFiles("/appl/fp_v6.0.03.15D6/lib");
 
     //* Close the connection
     await client.disconnect();
-})();
+
+    res.json(list)
+};
+
+const readFile = async (goodsFile) => {
+    await connectSftp()
+    await client.downloadFile(goodsFile, "./public/goodsList.txt");
+    await client.disconnect();
+}
+
+exports.readFile = readFile
+exports.listFiles = listFiles
