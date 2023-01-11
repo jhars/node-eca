@@ -1,0 +1,8 @@
+# Secret Environment Variables
+.env
+
+# npm packages
+#node_modules/
+
+# public files
+public/
