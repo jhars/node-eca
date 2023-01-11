@@ -1,9 +1,6 @@
 'use strict'
-const Client = require('ssh2-sftp-client');
-const request = require('request')
-const rp = require('request-promise')
-const path = require('path');
 
+const sftpClient = require('../helpers/SFTPClient')
 
 require('dotenv').config()
 
@@ -12,72 +9,11 @@ const port = 22
 const username = process.env.USERNAME
 const password = process.env.PASSWORD
 
-var client;
-
-class SFTPClient {
-    constructor() {
-        this.client = new Client();
-    }
-
-    async connect(options) {
-        console.log(`Connecting to ${options.host}:${options.port}`);
-        try {
-            await this.client.connect(options);
-        } catch (err) {
-            console.log('Failed to connect:', err);
-        }
-    }
-
-    async disconnect() {
-        await this.client.end();
-    }
-
-    async listFiles(remoteDir, fileGlob) {
-        console.log(`Listing ${remoteDir} ...`);
-        let fileObjects;
-        try {
-            fileObjects = await this.client.list(remoteDir, fileGlob);
-        } catch (err) {
-            console.log('Listing failed:', err);
-        }
-
-        const fileNames = [];
-
-        for (const file of fileObjects) {
-            if (file.type === 'd') {
-                console.log(`${new Date(file.modifyTime).toISOString()} PRE ${file.name}`);
-            } else {
-                console.log(`${new Date(file.modifyTime).toISOString()} ${file.size} ${file.name}`);
-            }
-
-            fileNames.push(file.name);
-        }
-
-        return fileNames;
-    }
-
-    async uploadFile(localFile, remoteFile) {
-        console.log(`Uploading ${localFile} to ${remoteFile} ...`);
-        try {
-            await this.client.put(localFile, remoteFile);
-        } catch (err) {
-            console.error('Uploading failed:', err);
-        }
-    }
-
-    async downloadFile(remoteFile, localFile) {
-        console.log(`Downloading ${remoteFile} to ${localFile} ...`);
-        try {
-            await this.client.get(remoteFile, localFile);
-        } catch (err) {
-            console.error('Downloading failed:', err);
-        }
-    }
-};
+var client
 
 const connectSftp = async () => {
     //* Open the connection
-    client = new SFTPClient();
+    client = new sftpClient()
     await client.connect({ host, port, username, password });
 }
 

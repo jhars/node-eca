@@ -17,3 +17,8 @@
 
     //* Delete remote file
     // await client.deleteFile("./remote.txt");
+
+ #######################################################################
+ const request = require('request')
+ const rp = require('request-promise')
+ const path = require('path')

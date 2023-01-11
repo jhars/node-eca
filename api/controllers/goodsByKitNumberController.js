@@ -1,50 +1,60 @@
 const fs = require('fs')
-const path = require('path')
 const {NodeSSH} = require('node-ssh')
-const request = require('request')
-const rp = require('request-promise')
-const sftp = require('./sftpController')
+const sftpClient = require('../helpers/SFTPClient')
 
 require('dotenv').config()
 
+const remoteOutputFile = '/tmp/testoutput.txt'
+const queryFileLocation = '/appl/fp_v6.0.03.15D6/sql/testoutput'
+const fpTable = 'kitmat'
+const goodsListFile = './public/goodsList.txt'
 const connectSSH = async (req, res) => {
     const ssh = new NodeSSH()
-
     await ssh.connect({
         host: process.env.HOST,
         username: process.env.USERNAME,
         password: process.env.PASSWORD
     })
 
-    // await ssh.exec('/appl/fp_v6.0.03.15D6/fpsql testoutputBang',[])
+    //Clear Contents of Query File
+    await ssh.exec(`:> ${queryFileLocation}`,[])
 
-    let queryFileLocation = "/appl/fp_v6.0.03.15D6/sql/testoutput"
+    let query = "set output" + "'" +
+        remoteOutputFile + "'" +
+        "\nset lines 0\nset delimiter '!'\nselect @1,@2\n" +
+        "from " +
+        fpTable + "\nwhere @2 = " +
+        req.params['kitNumber']
 
-    await ssh.exec(`> ${queryFileLocation}`,[])
-    // 1064000
-    let query = "set output '/tmp/testoutput.txt'\nset lines 0\nset delimiter '!'\nselect @1,@2\nfrom kitmat\nwhere @2 = " + req.params['kitNumber']
+    //Dynamically Update Query String
     await ssh.exec(`echo "${query}" > ${queryFileLocation}`,[])
-    await ssh.exec('/appl/fp_v6.0.03.15D6/fpsql testoutput',[])
-    await ssh.dispose()
 
-    let resultsFileLocation = "/tmp/testoutput.txt"
-    // let result = await ssh.exec('cat /tmp/testoutput.txt',[])
-    await sftp.readFile(resultsFileLocation)
+    //Run FPSQL query from command line
+    await ssh.exec('export TERM=linux && cd /appl/fp_v6.0.03.15D6 && ./fpsql testoutput',[])
+    ssh.dispose()
 
-    fs.readFile('./public/goodsList.txt', 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            // return;
-        }
-        console.log(data);
-        res.json(data)
-    });
+    let data = await getSingleFile()
+    res.json(data)
+}
 
-    // console.log(result)
-    //
-    // res.json(result)
+const getSingleFile = async () => {
+    let sftp = new sftpClient()
+    await sftp.connect({
+        host: process.env.HOST,
+        username: process.env.USERNAME,
+        password: process.env.PASSWORD,
+        port: 22
+    })
 
-
+    await sftp.downloadFile(remoteOutputFile,goodsListFile )
+    sftp.disconnect();
+    try {
+        var data = fs.readFileSync(goodsListFile, 'utf8');
+        console.log(data.toString());
+        return data.toString()
+    } catch(e) {
+        console.log('Error:', e.stack);
+    }
 }
 
 exports.goodsList = connectSSH
