@@ -1,13 +1,24 @@
 const Client = require("ssh2-sftp-client");
+const fs = require('fs');
+
+//JH-NOTE: refactor to use this in initial connection function
+const connectionOptions = {
+    host: process.env.HOST,
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD,
+    port: 22
+}
+
 module.exports = class SFTPClient {
     constructor() {
         this.client = new Client();
     }
 
+//JH-NOTE: refactor to use connectionOptions (above), dummy variable 'options' for now
     async connect(options) {
-        console.log(`Connecting to ${options.host}:${options.port}`);
+        console.log(`Connecting to ${connectionOptions.host}:${connectionOptions.port}`);
         try {
-            await this.client.connect(options);
+            await this.client.connect(connectionOptions);
         } catch (err) {
             console.log('Failed to connect:', err);
         }
@@ -56,6 +67,19 @@ module.exports = class SFTPClient {
             await this.client.get(remoteFile, localFile);
         } catch (err) {
             console.error('Downloading failed:', err);
+        }
+    }
+
+    async getSingleFile(localTempFile, remoteOutputFile) {
+        await this.connect()
+        await this.downloadFile(remoteOutputFile,localTempFile )
+        await this.disconnect();
+        try {
+            var data = fs.readFileSync(localTempFile, 'utf8');
+            console.log(data.toString());
+            return data.toString()
+        } catch(e) {
+            console.log('Error:', e.stack);
         }
     }
 };
