@@ -13,13 +13,13 @@ module.exports = function (app) {
         .get(sftp.listFiles)
 
     app.route('/goods/:kitNumber')
-        .get(goods.goodsList)
+        .get(goods.listGoodsByKitNumber)
 
     //should be refactored to accept query, not URL params
     // app.route('/user/:email/:permissionLevel')
     //     .get(user.)
 
     //should be refactored to accept query, not URL params
-    app.route('/liveDelivery/:email/:permissionLevel')
+    app.route('/liveDelivery/:teacherNumber/:permissionLevel')
         .get(liveDeliverySchedule.orderNumberByTeacherEmail)
 }

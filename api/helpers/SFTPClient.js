@@ -1,6 +1,6 @@
 const Client = require("ssh2-sftp-client");
 const fs = require('fs');
-
+require('dotenv').config()
 //JH-NOTE: refactor to use this in initial connection function
 const connectionOptions = {
     host: process.env.HOST,
@@ -15,7 +15,7 @@ module.exports = class SFTPClient {
     }
 
 //JH-NOTE: refactor to use connectionOptions (above), dummy variable 'options' for now
-    async connect(options) {
+    async connectSFTP() {
         console.log(`Connecting to ${connectionOptions.host}:${connectionOptions.port}`);
         try {
             await this.client.connect(connectionOptions);
@@ -24,7 +24,7 @@ module.exports = class SFTPClient {
         }
     }
 
-    async disconnect() {
+    async disconnectSFTP() {
         await this.client.end();
     }
 
@@ -61,25 +61,25 @@ module.exports = class SFTPClient {
         }
     }
 
-    async downloadFile(remoteFile, localFile) {
-        console.log(`Downloading ${remoteFile} to ${localFile} ...`);
+    async downloadFile(queryName) {
+        console.log(`Downloading /tmp/${queryName}.txt to local ./public/${queryName}.txt ...`);
         try {
-            await this.client.get(remoteFile, localFile);
+            await this.client.get('/tmp/' + queryName + '.txt', './public/' + queryName + '.txt');
         } catch (err) {
             console.error('Downloading failed:', err);
         }
     }
 
-    async getSingleFile(localTempFile, remoteOutputFile) {
-        await this.connect()
-        await this.downloadFile(remoteOutputFile,localTempFile )
-        await this.disconnect();
+    async getSingleFile(queryName) {
+        await this.connectSFTP()
+        await this.downloadFile(queryName)
         try {
-            var data = fs.readFileSync(localTempFile, 'utf8');
+            var data = fs.readFileSync('./public/' + queryName + '.txt', 'utf8');
             console.log(data.toString());
             return data.toString()
         } catch(e) {
             console.log('Error:', e.stack);
         }
+        await this.disconnectSFTP()
     }
 };

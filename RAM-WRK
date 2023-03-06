@@ -1,24 +1,21 @@
+There could be an issue with the way we are exporting data t /tmp/remoteOutput file.
 
-// app.get("/", (req, res) => res.send("Hello World!"))
-// app.get("/sftp", (req, res) =>
-//
-//     res.send("SFTP Running")
-// )
+Since there is ony 1 file being used to hold temporary data, a race condition could arise.
 
-################################################################
- //* Upload local file to remote file
-    // await client.uploadFile( "./public/licfp.dat", "/appl/fp_v6.0.03.15D6/lib/licfp.dat");
-    // await client.uploadFile( "./public/licfp.bkp", "/appl/fp_v6.0.03.15D6/lib/licfp.bkp");
-    // await client.uploadFile( "./public/licfp_new.dat", "/appl/fp_v6.0.03.15D6/lib/licfp.dat");
-    // await client.uploadFile( "./public/licfp_new.bkp", "/appl/fp_v6.0.03.15D6/lib/licfp.bkp");
+If 1 user quereies data, and another user makes the same query,
+ which updates the temp file before the 1st user can read the temp file.
 
-    //* Download remote file to local file
-    // await client.downloadFile("./testSafe/testdirectory/testfile", "./public/downloadedFromDevLinux.txt");
+ THis can be resolved by creating timestamped files, specific to each user's query,
+  then removing the unique file after the data has been succesfully served.
 
-    //* Delete remote file
-    // await client.deleteFile("./remote.txt");
 
- #######################################################################
- const request = require('request')
- const rp = require('request-promise')
- const path = require('path')
+  #############################
+
+  We've got an issue with using a global variable for sftp and ssh clients
+  we need to reference the same instance of these clients in multiple places on controller (at least i think we do)
+  we need to make sure that we disconnet our ssh and sftp sessions,
+  should possible be able to to do in the ssh and sftp client helper files
+
+    > currwntly ssh does disconnects on query controller
+    > currently sftp disconnects on helper client (getSingleFile)
+

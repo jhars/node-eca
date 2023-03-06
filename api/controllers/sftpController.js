@@ -4,17 +4,12 @@ const sftpClient = require('../helpers/SFTPClient')
 
 require('dotenv').config()
 
-const host = process.env.HOST
-const port = 22
-const username = process.env.USERNAME
-const password = process.env.PASSWORD
-
 var client
 
 const connectSftp = async () => {
     //* Open the connection
     client = new sftpClient()
-    await client.connect({ host, port, username, password });
+    await client.connect();
 }
 
 const listFiles = async (req, res) => {
