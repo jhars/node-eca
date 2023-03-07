@@ -1,0 +1,42 @@
+ 1 -   KO#                                     ■     8■  .0     ■
+ 2 -   ANI CODE                                ■     9■  ALLUP  ■
+ 3 -   CUST#                                   ■     8■  .0     ■
+ 4 -   CUST NAME                               ■    35■  ALLUP  ■
+ 5 -   SCH#                                    ■     8■  .0     ■
+ 6 -   SCH NAME                                ■    20■  ALLUP  ■
+ 7 -   LNAME                                   ■    15■  ALLUP  ■
+ 8 -   FNAME                                   ■    12■  ALLUP  ■
+ 9 -   DELIVERY WK#                            ■     6■  WKNUM  ■
+10 -   DELIVERY DATE                           ■    10■  YYMD/  ■
+11 -   ANI DESCR                               ■    20■  ALLUP  ■
+12 -   DATE LABEL PRINTED                      ■    10■  YYMD/  ■
+13 -   DATE SHIP TIC PRINTED                   ■    10■  YYMD/  ■
+14 -   ORDER CODE                              ■    17■  ALLUP  ■
+15 -   DELV METHOD                             ■     1■  ALLUP  ■
+16 -   CREATION DATE                           ■    10■  YYMD/  ■
+17 -   KIT START DATE                          ■    10■  YYMD/  ■
+18 -   STATE                                   ■     2■  STATE  ■
+19 -   ANIMAL TYPE                             ■     3■  ALLUP  ■
+20 -   KIT#                                    ■     8■  .0     ■
+21 -   KIT DELIVERED(Y/N)                      ■     1■  YESNO  ■
+22 -   DATE PREP LIST PRINTED                  ■    10■  YYMD/  ■
+23 -   STOP CODE                               ■    14■  #      ■
+24 -   DATE DROPSHIP ADDR PRINTED              ■    10■  YYMD/  ■
+25 -   DATE ANI SCHED SENT                     ■    10■  YYMD/  ■
+26 -   MARK                                    ■     1■  ALLUP  ■
+27 -   DATE SCHED ADDR PRINTED                 ■    10■  YYMD/  ■
+28 -   DATE LABEL 3RD PARTY                    ■    10■  YYMD/  ■
+29 -   N)OTES 1                                ■    70■  UPLOW  ■
+30 -   N)OTES 2                                ■    70■  UPLOW  ■
+31 -   DELETE/NOTIFY MARK                      ■     1■  *      ■
+32 -   DATE DELETE MEMO                        ■    10■  YYMD/  ■
+33 -   REPRINT DATE                            ■    10■  YYMD/  ■
+34 -   SENT BY MAIL OR EMAIL                   ■     1■  ALLUP  ■
+35 -   WORKDAY                                 ■     3■  ALLUP  ■
+36 -   DATE REMINDER SENT                      ■    10■  YYMD/  ■
+37 -   REMINDER SENT BY EMAIL OR MAIL          ■     1■  ALLUP  ■
+38 -   REMINDER FORWARDED                      ■     1■  ALLUP  ■
+39 -   GRADE                                   ■     3■  GRADE  ■
+40 -   ECA PO#                                 ■     8■  .0     ■
+41 -   DATE POSTED TO kitgoods                 ■    10■  YYMD/  ■
+42 -   DELV CODE                               ■    28■  *      ■

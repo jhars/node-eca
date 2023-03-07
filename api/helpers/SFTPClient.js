@@ -70,16 +70,16 @@ module.exports = class SFTPClient {
         }
     }
 
-    async getSingleFile(queryName) {
+    async readQueryDataResult(queryName) {
         await this.connectSFTP()
         await this.downloadFile(queryName)
+        await this.disconnectSFTP()
         try {
             var data = fs.readFileSync('./public/' + queryName + '.txt', 'utf8');
-            console.log(data.toString());
-            return data.toString()
+            return data//.toString()
         } catch(e) {
             console.log('Error:', e.stack);
+            return e.stack
         }
-        await this.disconnectSFTP()
     }
 };

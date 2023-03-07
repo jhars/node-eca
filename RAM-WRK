@@ -9,6 +9,10 @@ If 1 user quereies data, and another user makes the same query,
   then removing the unique file after the data has been succesfully served.
 
 
+  >>> It could be also be useful to add timeout and retry functionality to the requests to Filepro,
+  this could help resolve the issue if a file is currently being queried by another CS Site User
+
+
   #############################
 
   We've got an issue with using a global variable for sftp and ssh clients
@@ -19,3 +23,10 @@ If 1 user quereies data, and another user makes the same query,
     > currwntly ssh does disconnects on query controller
     > currently sftp disconnects on helper client (getSingleFile)
 
+###############################################
+
+//JH-NOTE: create new tmp file and query file location w/ better nomenclature
+
+###############################################
+
+Could add a (thin) NOSql Database that houses data temporarily, made to be overwritten

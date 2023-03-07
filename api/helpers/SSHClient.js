@@ -40,10 +40,10 @@ module.exports = class SSHClient {
     }
     //Update to JSON file format
      createQuery(queryName, queryStatement) {
-         const queryString = "set output " +"'/tmp/" + queryName + ".txt'" + "\nset lines 0\nset delimiter '!'" + queryStatement
+         const queryString = "set output " +"'/tmp/" + queryName + ".txt'" +
+             "\nset lines 0\nset delimiter ','" +
+             queryStatement
          console.log("query string: " + queryString)
          return queryString
-
     }
-
 }

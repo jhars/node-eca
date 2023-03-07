@@ -18,7 +18,7 @@ const listGoodsByKitNumber = async (req, res) => {
     await ssh.generateNewQuery(query, queryName)
     await ssh.runFPSQLQuery(queryName)
 
-    let data = await sftp.getSingleFile(queryName)
+    let data = await sftp.readQueryDataResult(queryName)
     res.json(data)
 }
 

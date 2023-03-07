@@ -1,32 +1,76 @@
-const sshClient = require('../helpers/SSHClient')
-const sftpClient = require('../helpers/SFTPClient')
+const sshClient = require('../helpers/SSHClient');
+const sftpClient = require('../helpers/SFTPClient');
+const jsonFormatter = require('../helpers/JSONFormatter');
+const kitOrderDataMap = require('../dataMaps/kitOrder.js');
+const kitAniOrderDataMap = require('../dataMaps/kitAniOrder.js');
 
-require('dotenv').config()
-
-//JH-NOTE: create new tmp file and query file location w/ better nomenclature
-const fpTable = 'kitorder'
-const queryName = 'kitOrdersByTeacherNumber'
+// require('dotenv').config(); // can probably be deleted
 
 const ssh = new sshClient();
 const sftp = new sftpClient();
+const jsonData = new jsonFormatter();
 
-const findKitOrderNumberByTeacherNumber = async (teacherNumber) =>  {
-    let queryStatement = "\nselect @RN,@1 from" + " " + fpTable + "\nwhere @55 = 'Y'\n" + "and @50 <> ''\n" + "and @2 = " + teacherNumber.toString()
+// leading func name w/ 'query' implies querying filepro DB
+const queryKitOrderNumberByTeacherNumber = async (teacherNumber) =>  {
+    const fpFileName = 'kitorder';
+    const queryName = 'kitOrdersByTeacherNumber';
+
+    let selectFields = kitOrderDataMap.kitOrderNumber;
+    let queryStatement =`\nselect ${selectFields}` +
+        `\nfrom ` + fpFileName +
+        `\nwhere ${kitOrderDataMap.teacherNumber} = ` + teacherNumber.toString() +
+        `\nand ${kitOrderDataMap.isLiveOrder} = 'Y'` +
+        `\nand ${kitOrderDataMap.dateAniOrderProcessed} <> ''`;
+
     await ssh.generateNewQuery(queryStatement, queryName)
-    await sftp.getSingleFile(queryName)
+    await ssh.runFPSQLQuery(queryName)
+    return await sftp.readQueryDataResult(queryName)
 }
 
-const getOrderNumberByTeacherEmail = async (req, res) => {
+const queryAniOrderNumberByKitOrderNumber = async (kitOrderNumber) =>  {
+    const fpFileName = 'kitaniorder';
+    const queryName = 'kitAniOrderByKitOrderNumber';
+
+    let selectFields = `${kitAniOrderDataMap.kitOrderNumber},${kitAniOrderDataMap.aniCode},${kitAniOrderDataMap.orderCode}`;
+    let queryStatement =`\nselect ${selectFields}` +
+        `\nfrom ` + fpFileName +
+        `\nwhere ${kitAniOrderDataMap.kitOrderNumber} = ` + kitOrderNumber.toString();
+
+    await ssh.generateNewQuery(queryStatement, queryName)
+    await ssh.runFPSQLQuery(queryName)
+    return await sftp.readQueryDataResult(queryName)
+}
+
+const getKitAniOrderNumberByTeacherNumber = async (req, res) =>  {
     const teacherNumber = req.params['teacherNumber']
-    const permissionLevel = req.params['permissionLevel']
+    const kitOrderNumber = await queryKitOrderNumberByTeacherNumber(teacherNumber);
+    const formattedKitOrderNumberData = jsonData.transformQueryResultsToArray(kitOrderNumber);
 
-    await findKitOrderNumberByTeacherNumber(teacherNumber, permissionLevel)
-    //JH-NOTE: respond with dummy response for now
-    if (req.params['permissionLevel'] == 'T') {
-        res.json("user is teacher!")
-    } else {
-        res.json("user is not a teacher")
-    }
+    const kitAniOrderNumber = await queryAniOrderNumberByKitOrderNumber(formattedKitOrderNumberData[0]);
+    const kitAniOrderDataArray = jsonData.transformQueryResultsToJSONObject(kitAniOrderNumber)
+
+    res.json(kitAniOrderDataArray)
 }
-exports.orderNumberByTeacherEmail = getOrderNumberByTeacherEmail
+
+// ############################################################# //
+// ############### Could Be Useful Later ####################### //
+
+// const getOrderNumberByTeacherNumber = async (req, res) => {
+//     const teacherNumber = req.params['teacherNumber'];
+//     const permissionLevel = req.params['permissionLevel'];
+//
+//     const kitOrderNumber = await queryKitOrderNumberByTeacherNumber(teacherNumber);
+//     const formattedData = jsonData.transformQueryResultsToArray(kitOrderNumber);
+//
+//     if (permissionLevel == 'T') {
+//         // ["orderNumber"]
+//         res.json(formattedData[0])
+//     } else {
+//         res.json("user is not a teacher, data: " + data)
+//     }
+// }
+// ############################################################# //
+
+// exports.getOrderNumberByTeacherNumber = getOrderNumberByTeacherNumber
+exports.getKitAniOrderNumberByTeacherNumber = getKitAniOrderNumberByTeacherNumber
 
