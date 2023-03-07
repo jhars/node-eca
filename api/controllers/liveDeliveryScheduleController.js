@@ -15,12 +15,12 @@ const queryKitOrderNumberByTeacherNumber = async (teacherNumber) =>  {
     const fpFileName = 'kitorder';
     const queryName = 'kitOrdersByTeacherNumber';
 
-    let selectFields = kitOrderDataMap.kitOrderNumber;
+    let selectFields = `@${kitOrderDataMap.kitOrderNumber}`;
     let queryStatement =`\nselect ${selectFields}` +
         `\nfrom ` + fpFileName +
-        `\nwhere ${kitOrderDataMap.teacherNumber} = ` + teacherNumber.toString() +
-        `\nand ${kitOrderDataMap.isLiveOrder} = 'Y'` +
-        `\nand ${kitOrderDataMap.dateAniOrderProcessed} <> ''`;
+        `\nwhere @${kitOrderDataMap.teacherNumber} = ` + teacherNumber.toString() +
+        `\nand @${kitOrderDataMap.isLiveOrder} = 'Y'` +
+        `\nand @${kitOrderDataMap.dateAniOrderProcessed} <> ''`;
 
     await ssh.generateNewQuery(queryStatement, queryName)
     await ssh.runFPSQLQuery(queryName)
@@ -31,10 +31,10 @@ const queryAniOrderNumberByKitOrderNumber = async (kitOrderNumber) =>  {
     const fpFileName = 'kitaniorder';
     const queryName = 'kitAniOrderByKitOrderNumber';
 
-    let selectFields = `${kitAniOrderDataMap.kitOrderNumber},${kitAniOrderDataMap.aniCode},${kitAniOrderDataMap.orderCode}`;
+    let selectFields = `@${kitAniOrderDataMap.kitOrderNumber},@${kitAniOrderDataMap.aniCode},@${kitAniOrderDataMap.orderCode}`;
     let queryStatement =`\nselect ${selectFields}` +
         `\nfrom ` + fpFileName +
-        `\nwhere ${kitAniOrderDataMap.kitOrderNumber} = ` + kitOrderNumber.toString();
+        `\nwhere @${kitAniOrderDataMap.kitOrderNumber} = ` + kitOrderNumber.toString();
 
     await ssh.generateNewQuery(queryStatement, queryName)
     await ssh.runFPSQLQuery(queryName)
@@ -47,11 +47,25 @@ const getKitAniOrderNumberByTeacherNumber = async (req, res) =>  {
     const formattedKitOrderNumberData = jsonData.transformQueryResultsToArray(kitOrderNumber);
 
     const kitAniOrderNumber = await queryAniOrderNumberByKitOrderNumber(formattedKitOrderNumberData[0]);
-    const kitAniOrderDataArray = jsonData.transformQueryResultsToJSONObject(kitAniOrderNumber)
-
+    const kitAniOrderDataArray = jsonData.transformQueryResultsToArrayOfArrays(kitAniOrderNumber)
+    //JH-NOTE: proabably makes sense to do some formatting here, as this data will ultimately be served directly to CS Site
     res.json(kitAniOrderDataArray)
 }
 
+const createLiveDeliverySchedule = (data) => {
+    let jsonObject = {
+        "customer_number": "",
+        "kit_title": "",
+        "kit_number": "",
+        "kit_start_date": "",
+        "live_item_description": "",
+        "quantity": "",
+        "lesson_number": "",
+        "delivery_window": ""
+    }
+
+    return jsonObject;
+}
 // ############################################################# //
 // ############### Could Be Useful Later ####################### //
 

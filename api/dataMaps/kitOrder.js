@@ -1,11 +1,11 @@
 module.exports = {
-  recordNumber: "@RN",
-  teacherNumber: "@2",
-  lastName: "@3",
-  schoolName: "@7",
-  kitOrderNumber: "@20",
-  dateAniOrderProcessed: "@50",
-  isLiveOrder: "@55"
+  recordNumber: "RN",
+  teacherNumber: "2",
+  lastName: "3",
+  schoolName: "7",
+  kitOrderNumber: "20",
+  dateAniOrderProcessed: "50",
+  isLiveOrder: "55"
 };
 
 

@@ -9,12 +9,11 @@ module.exports = class JSONFormatter {
     }
 
     //to make Array of Arrays
-    transformQueryResultsToJSONObject(rawData) {
-        //array of arrays
+    transformQueryResultsToArrayOfArrays(rawData) {
         let stringData = rawData.replace(/\s/,'');
         let tempData = stringData.replace(/\n/g, '!');
-        let cutLastCommaBracket = tempData.substring(0, tempData.length-3);
-        let cutExtraSpaces = cutLastCommaBracket.replace(/\s/g,'');
+        let cutLastTwoChars = tempData.substring(0, tempData.length-2);
+        let cutExtraSpaces = cutLastTwoChars.replace(/\s/g,'');
         let appendArrayBracketAtEnd = cutExtraSpaces.concat('');
         let data = appendArrayBracketAtEnd.split("!");
         let dataArray= [];
