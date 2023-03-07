@@ -3,6 +3,9 @@ module.exports = {
   teacherNumber: "2",
   lastName: "3",
   schoolName: "7",
+  kitNumber: "11",
+  kitTitle: "13",
+  kitStartDate: "15",
   kitOrderNumber: "20",
   dateAniOrderProcessed: "50",
   isLiveOrder: "55"

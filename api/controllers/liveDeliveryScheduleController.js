@@ -3,6 +3,7 @@ const sftpClient = require('../helpers/SFTPClient');
 const jsonFormatter = require('../helpers/JSONFormatter');
 const kitOrderDataMap = require('../dataMaps/kitOrder.js');
 const kitAniOrderDataMap = require('../dataMaps/kitAniOrder.js');
+const kitAniCodeDataMap = require('../dataMaps/kitAniCode.js');
 
 // require('dotenv').config(); // can probably be deleted
 
@@ -32,27 +33,64 @@ const queryAniOrderNumberByKitOrderNumber = async (kitOrderNumber) =>  {
     const queryName = 'kitAniOrderByKitOrderNumber';
 
     let selectFields = `@${kitAniOrderDataMap.kitOrderNumber},@${kitAniOrderDataMap.aniCode},@${kitAniOrderDataMap.orderCode}`;
+    let qualifierField = kitAniOrderDataMap.kitOrderNumber
+    let qualifierConditionalValue = kitOrderNumber
+
     let queryStatement =`\nselect ${selectFields}` +
         `\nfrom ` + fpFileName +
-        `\nwhere @${kitAniOrderDataMap.kitOrderNumber} = ` + kitOrderNumber.toString();
+        `\nwhere @${qualifierField} = ` + qualifierConditionalValue.toString();
 
     await ssh.generateNewQuery(queryStatement, queryName)
     await ssh.runFPSQLQuery(queryName)
     return await sftp.readQueryDataResult(queryName)
 }
 
-const getKitAniOrderNumberByTeacherNumber = async (req, res) =>  {
+const getLiveDeliveryScheduleByTeacherNumber = async (req, res) =>  {
     const teacherNumber = req.params['teacherNumber']
     const kitOrderNumber = await queryKitOrderNumberByTeacherNumber(teacherNumber);
     const formattedKitOrderNumberData = jsonData.transformQueryResultsToArray(kitOrderNumber);
 
     const kitAniOrderNumber = await queryAniOrderNumberByKitOrderNumber(formattedKitOrderNumberData[0]);
     const kitAniOrderDataArray = jsonData.transformQueryResultsToArrayOfArrays(kitAniOrderNumber)
-    //JH-NOTE: proabably makes sense to do some formatting here, as this data will ultimately be served directly to CS Site
+    //JH-NOTE: do some formatting here, as this data will ultimately be served directly to CS Site
+
+    const liveDeliverySchedule = await createLiveDeliverySchedule(kitAniOrderDataArray)
+
     res.json(kitAniOrderDataArray)
 }
 
-const createLiveDeliverySchedule = (data) => {
+const queryDeliveryScheduleByCombinedAniCode = async (aniCode) => {
+    const fpFileName = 'kitanicode';
+    const queryName = 'kitAniCodeByCombinedAniCode';
+
+    let selectFields = `@${kitAniCodeDataMap.combinedAniCode},@${kitAniCodeDataMap.quantityOfLabels}`;
+    let qualifierField = kitAniCodeDataMap.combinedAniCode;
+    let qualifierConditionalValue = aniCode
+
+    let queryStatement =`\nselect ${selectFields}` +
+        `\nfrom ` + fpFileName +
+        `\nwhere @${qualifierField} = ` + qualifierConditionalValue.toString();
+
+    await ssh.generateNewQuery(queryStatement, queryName)
+    await ssh.runFPSQLQuery(queryName)
+    return await sftp.readQueryDataResult(queryName)
+}
+
+const createLiveDeliverySchedule = async (dataArray) => {
+    //JH-NOTE: this is semi-functional
+    // we need to build a "LiveDeliveryObject" (see jsonObject below) from model and insert into json response
+    // for CS site  to consume data
+    let deliveryInfoArray = [];
+    console.log("Jh checkpoint 00")
+    for (const datum of dataArray) {
+        console.log("datum: " + datum[1])
+        const liveDeliveryRawData = await queryDeliveryScheduleByCombinedAniCode(datum[2])
+        const liveDeliveryDataArray = jsonData.transformQueryResultsToArray(liveDeliveryRawData)
+        deliveryInfoArray.push(liveDeliveryDataArray)
+    }
+    console.log("Jh checkpoint 01")
+    console.log(deliveryInfoArray);
+
     let jsonObject = {
         "customer_number": "",
         "kit_title": "",
@@ -86,5 +124,5 @@ const createLiveDeliverySchedule = (data) => {
 // ############################################################# //
 
 // exports.getOrderNumberByTeacherNumber = getOrderNumberByTeacherNumber
-exports.getKitAniOrderNumberByTeacherNumber = getKitAniOrderNumberByTeacherNumber
+exports.getLiveDeliveryScheduleByTeacherNumber = getLiveDeliveryScheduleByTeacherNumber
 

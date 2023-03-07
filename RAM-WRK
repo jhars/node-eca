@@ -30,3 +30,8 @@ If 1 user quereies data, and another user makes the same query,
 ###############################################
 
 Could add a (thin) NOSql Database that houses data temporarily, made to be overwritten
+
+###############################################
+
+there is an issue with creting a new file automatically (that holds temporary query indformation), resolved curr3ently
+by manually creating file on filepro and assigning ownership to 'filepro:users' `sudo chown filepro:users {filename}`

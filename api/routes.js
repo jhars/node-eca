@@ -13,5 +13,5 @@ module.exports = function (app) {
     //should be refactored to accept query, not URL params
     // format - '/fpFileContainingKeyData/descriptionOfDesiredResponseData/dataFieldUsedFor(initial)Query'
     app.route('/kitaniorder/liveDeliverySchedule/:teacherNumber')
-        .get(liveDeliverySchedule.getKitAniOrderNumberByTeacherNumber)
+        .get(liveDeliverySchedule.getLiveDeliveryScheduleByTeacherNumber)
 }
